@@ -14,8 +14,10 @@ else:
 if found_env:
     load_dotenv(found_env)
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-engine = create_engine(DATABASE_URL, echo=True)
+db_url = os.getenv("DATABASE_URL")
+if not db_url:
+    raise RuntimeError("DATABASE_URL is not set in the environment")
+engine = create_engine(db_url, echo=True)
 
 def get_session():
     with Session(engine) as session:
