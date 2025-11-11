@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-from app.api.v1 import users
+
+from app.api.v1 import users, customers
 from app.db.base import init_db
 from app.db.session import engine
 
@@ -10,6 +11,8 @@ init_db(engine)
 
 # Include routers
 app.include_router(users.router, prefix="/api/v1/users", tags=["Users"])
+app.include_router(customers.router, prefix="/api/v1/customers", tags=["Customers"])
+
 
 @app.get("/")
 def root():
