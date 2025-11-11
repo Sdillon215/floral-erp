@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlmodel import Session, select
 from app.models.user import User
 from app.schemas.user import UserCreate, UserOut, UserUpdate
@@ -55,11 +55,11 @@ def update_user(
     db.refresh(user)
     return user
 
-@router.delete("/{user_id}", response_model=UserOut)
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_user(user_id: int, db: Session = Depends(get_session)):
     user = db.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     db.delete(user)
     db.commit()
-    return user
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

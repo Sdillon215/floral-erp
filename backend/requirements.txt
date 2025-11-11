@@ -9,3 +9,4 @@ passlib[bcrypt]
 pydantic
 email-validator
 python-dotenv
+pytest
