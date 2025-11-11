@@ -10,3 +10,4 @@ pydantic
 email-validator
 python-dotenv
 pytest
+httpx
