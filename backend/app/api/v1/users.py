@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from app.models.user import User
-from app.schemas.user import UserCreate, UserOut
+from app.schemas.user import UserCreate, UserOut, UserUpdate
 from app.db.session import get_session
 from app.core.security import hash_password
 from typing import List
@@ -29,4 +29,37 @@ def get_user(user_id: int, db: Session = Depends(get_session)):
     user = db.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+@router.put("/{user_id}", response_model=UserOut)
+def update_user(
+    user_id: int,
+    user_update: UserUpdate,
+    db: Session = Depends(get_session),
+):
+    user = db.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if user_update.email is not None:
+        user.email = user_update.email
+    if user_update.password is not None:
+        user.hashed_password = hash_password(user_update.password)
+    if user_update.is_active is not None:
+        user.is_active = user_update.is_active
+    if user_update.is_admin is not None:
+        user.is_admin = user_update.is_admin
+
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+@router.delete("/{user_id}", response_model=UserOut)
+def delete_user(user_id: int, db: Session = Depends(get_session)):
+    user = db.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    db.delete(user)
+    db.commit()
     return user
