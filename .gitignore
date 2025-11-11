@@ -100,6 +100,9 @@ parcel-cache/
 .storybook/
 storybook-static/
 
+# Project Documentation (local only, not committed)
+PROJECT_GOALS.md
+
 # Misc
 *.swp
 *.swo

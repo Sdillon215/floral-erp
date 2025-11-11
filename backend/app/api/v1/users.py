@@ -23,3 +23,10 @@ def create_user(user: UserCreate, db: Session = Depends(get_session)):
 def list_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_session)):
     users = db.exec(select(User).offset(skip).limit(limit)).all()
     return users
+
+@router.get("/{user_id}", response_model=UserOut)
+def get_user(user_id: int, db: Session = Depends(get_session)):
+    user = db.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
