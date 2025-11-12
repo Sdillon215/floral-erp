@@ -21,6 +21,27 @@ Run the API locally:
 uvicorn app.main:app --reload --port 8000
 ```
 
+### Database Migrations
+
+Alembic manages schema changes. Typical commands:
+
+```
+# Create a new migration after model changes
+alembic revision --autogenerate -m "describe change"
+
+# Apply all pending migrations
+alembic upgrade head
+
+# Roll back the last migration
+alembic downgrade -1
+```
+
+Use environment variables to target specific databases, e.g.:
+
+```
+DATABASE_URL=sqlite:///./local.db alembic upgrade head
+```
+
 ### Configuration
 
 Environment variables (loaded via `app.core.config.Settings`):
