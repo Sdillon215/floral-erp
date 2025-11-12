@@ -21,6 +21,15 @@ Run the API locally:
 uvicorn app.main:app --reload --port 8000
 ```
 
+### Configuration
+
+Environment variables (loaded via `app.core.config.Settings`):
+
+- `DATABASE_URL` (required) – SQLAlchemy connection string.
+- `SECRET_KEY` (optional) – JWT signing key, defaults to `dev_secret_key_change_me`.
+- `ACCESS_TOKEN_EXPIRE_MINUTES` (optional) – token lifetime, defaults to 1440.
+- `SQLALCHEMY_ECHO` (optional) – set to `false` to silence SQL logging (default `true`).
+
 ### Authentication
 
 Seed an admin user (e.g. via tests or a migration) and obtain a JWT:
