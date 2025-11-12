@@ -3,8 +3,10 @@ from fastapi.testclient import TestClient
 from sqlmodel import SQLModel, Session, create_engine
 from sqlmodel.pool import StaticPool
 
+from app.core.security import hash_password
 from app.db.session import get_session
 from app.main import app
+from app.models.user import User
 
 
 engine = create_engine(
@@ -31,5 +33,16 @@ def client():
 def prepare_database():
     SQLModel.metadata.drop_all(engine)
     SQLModel.metadata.create_all(engine)
+
+    with Session(engine) as session:
+        admin = User(
+            email="admin@example.com",
+            hashed_password=hash_password("adminpass"),
+            is_active=True,
+            is_admin=True,
+        )
+        session.add(admin)
+        session.commit()
+
     yield
 

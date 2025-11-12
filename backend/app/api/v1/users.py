@@ -4,9 +4,10 @@ from app.models.user import User
 from app.schemas.user import UserCreate, UserOut, UserUpdate
 from app.db.session import get_session
 from app.core.security import hash_password
+from app.core.dependencies import get_current_admin
 from typing import List
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_admin)])
 
 @router.post("/", response_model=UserOut)
 def create_user(user: UserCreate, db: Session = Depends(get_session)):
