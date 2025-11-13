@@ -61,6 +61,26 @@ Users authenticate via JWT and receive one of the following roles (admins bypass
 
 Admins (`is_admin = true`) can access every endpoint regardless of assigned role. Non-admins must match the role required by each router.
 
+### Purchase Orders
+
+Buyers can create and manage purchase orders at `/api/v1/purchase-orders`. Example:
+
+```
+curl -X POST http://localhost:8000/api/v1/purchase-orders/ \
+  -H "Authorization: Bearer <buyer_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+        "supplier_id": 1,
+        "lines": [{"product_id": 1, "quantity": 24, "unit_cost": 1.85}]
+      }'
+```
+
+To seed a sample supplier/product/purchase order for local testing:
+
+```
+python -m app.db.seed
+```
+
 ### Authentication
 
 Seed an admin user (e.g. via tests or a migration) and obtain a JWT:
