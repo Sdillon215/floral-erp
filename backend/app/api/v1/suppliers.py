@@ -3,13 +3,14 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlmodel import Session, select
 
-from app.core.dependencies import get_current_user
+from app.core.dependencies import require_roles
 from app.db.session import get_session
 from app.models.supplier import Supplier
+from app.models.user import UserRole
 from app.schemas.supplier import SupplierCreate, SupplierOut, SupplierUpdate
 
 
-router = APIRouter(dependencies=[Depends(get_current_user)])
+router = APIRouter(dependencies=[Depends(require_roles(UserRole.BUYER))])
 
 
 @router.post("/", response_model=SupplierOut, status_code=status.HTTP_201_CREATED)

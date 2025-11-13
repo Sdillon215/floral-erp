@@ -1,3 +1,5 @@
+from collections.abc import Callable
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import ValidationError
@@ -5,7 +7,7 @@ from sqlmodel import Session
 
 from app.core.security import decode_access_token
 from app.db.session import get_session
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.schemas.token import TokenPayload
 
 
@@ -50,4 +52,18 @@ def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
             detail="Insufficient permissions",
         )
     return current_user
+
+
+def require_roles(*allowed_roles: UserRole) -> Callable[..., User]:
+    def dependency(current_user: User = Depends(get_current_user)) -> User:
+        if current_user.is_admin:
+            return current_user
+        if current_user.role in allowed_roles:
+            return current_user
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient permissions",
+        )
+
+    return dependency
 

@@ -6,7 +6,7 @@ from sqlmodel.pool import StaticPool
 from app.core.security import hash_password
 from app.db.session import get_session
 from app.main import app
-from app.models.user import User
+from app.models.user import User, UserRole
 
 
 engine = create_engine(
@@ -38,6 +38,7 @@ def prepare_database():
         admin = User(
             email="admin@example.com",
             hashed_password=hash_password("adminpass"),
+            role=UserRole.SALES,
             is_active=True,
             is_admin=True,
         )

@@ -51,6 +51,16 @@ Environment variables (loaded via `app.core.config.Settings`):
 - `ACCESS_TOKEN_EXPIRE_MINUTES` (optional) – token lifetime, defaults to 1440.
 - `SQLALCHEMY_ECHO` (optional) – set to `false` to silence SQL logging (default `true`).
 
+### Roles & Authorization
+
+Users authenticate via JWT and receive one of the following roles (admins bypass role checks):
+
+- `sales` – manage customers and products.
+- `picker_packer` – picking/packing fulfillment role (logic to be added as modules grow).
+- `buyer` – manage suppliers and purchasing.
+
+Admins (`is_admin = true`) can access every endpoint regardless of assigned role. Non-admins must match the role required by each router.
+
 ### Authentication
 
 Seed an admin user (e.g. via tests or a migration) and obtain a JWT:
