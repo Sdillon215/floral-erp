@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.api.v1 import auth, users, customers, products, suppliers, purchase_orders
+from app.api.v1 import auth, users, customers, products, suppliers, purchase_orders, inventory
 from app.db.base import init_db
 from app.db.session import engine
 
@@ -16,6 +16,7 @@ app.include_router(products.router, prefix="/api/v1/products", tags=["Products"]
 app.include_router(suppliers.router, prefix="/api/v1/suppliers", tags=["Suppliers"])
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["Auth"])
 app.include_router(purchase_orders.router, prefix="/api/v1/purchase-orders", tags=["Purchase Orders"])
+app.include_router(inventory.router, prefix="/api/v1/inventory", tags=["Inventory"])
 
 
 @app.get("/")

@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -5,6 +6,7 @@ from sqlmodel import Session, select
 
 from app.core.dependencies import require_roles
 from app.db.session import get_session
+from app.models.inventory import InventoryItem, InventoryTransaction
 from app.models.product import Product
 from app.models.purchase_order import PurchaseOrder, PurchaseOrderLine
 from app.models.supplier import Supplier
@@ -15,8 +17,27 @@ from app.schemas.purchase_order import (
     PurchaseOrderUpdate,
 )
 
-
 router = APIRouter(dependencies=[Depends(require_roles(UserRole.BUYER))])
+
+
+def _apply_purchase_order_receipt(db: Session, purchase_order: PurchaseOrder) -> None:
+    lines = db.exec(
+        select(PurchaseOrderLine).where(PurchaseOrderLine.purchase_order_id == purchase_order.id)
+    ).all()
+    for line in lines:
+        item = db.get(InventoryItem, line.product_id)
+        if not item:
+            item = InventoryItem(product_id=line.product_id, on_hand=0, allocated=0)
+            db.add(item)
+            db.flush()
+        item.on_hand += line.quantity
+        transaction = InventoryTransaction(
+            product_id=line.product_id,
+            quantity_delta=line.quantity,
+            reference=f"PO:{purchase_order.id}",
+            type="purchase_receipt",
+        )
+        db.add(transaction)
 
 
 @router.post("/", response_model=PurchaseOrderOut, status_code=status.HTTP_201_CREATED)
@@ -46,6 +67,15 @@ def create_purchase_order(
     db.add(purchase_order)
     db.commit()
     db.refresh(purchase_order)
+
+    if purchase_order.status == "received":
+        _apply_purchase_order_receipt(db, purchase_order)
+        if not purchase_order.received_date:
+            purchase_order.received_date = datetime.now(timezone.utc)
+        db.add(purchase_order)
+        db.commit()
+        db.refresh(purchase_order)
+
     return purchase_order
 
 
@@ -75,6 +105,7 @@ def update_purchase_order(
     if not purchase_order:
         raise HTTPException(status_code=404, detail="Purchase order not found")
 
+    previous_status = purchase_order.status
     update_data = purchase_order_update.model_dump(exclude_unset=True)
 
     if "status" in update_data and update_data["status"] not in {"created", "received"}:
@@ -82,6 +113,11 @@ def update_purchase_order(
 
     for field, value in update_data.items():
         setattr(purchase_order, field, value)
+
+    if purchase_order.status == "received" and previous_status != "received":
+        if not purchase_order.received_date:
+            purchase_order.received_date = datetime.now(timezone.utc)
+        _apply_purchase_order_receipt(db, purchase_order)
 
     db.add(purchase_order)
     db.commit()

@@ -75,6 +75,19 @@ curl -X POST http://localhost:8000/api/v1/purchase-orders/ \
       }'
 ```
 
+Marking a purchase order `received` automatically increases on-hand inventory.
+
+### Inventory
+
+- View inventory levels (`buyer`/`sales` roles): `GET /api/v1/inventory/`
+- Manual adjustments (`admin` only): `POST /api/v1/inventory/adjust`
+  ```
+  curl -X POST http://localhost:8000/api/v1/inventory/adjust \
+    -H "Authorization: Bearer <admin_token>" \
+    -H "Content-Type: application/json" \
+    -d '{"product_id": 1, "quantity_delta": 5, "reference": "manual-count"}'
+  ```
+
 To seed a sample supplier/product/purchase order for local testing:
 
 ```
