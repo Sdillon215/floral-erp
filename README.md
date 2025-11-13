@@ -88,6 +88,14 @@ Marking a purchase order `received` automatically increases on-hand inventory.
     -d '{"product_id": 1, "quantity_delta": 5, "reference": "manual-count"}'
   ```
 
+### Sales Orders
+
+- Sales team creates orders: `POST /api/v1/sales-orders`
+- Allocate stock (sales role): `POST /api/v1/sales-orders/{id}/allocate`
+- Ship orders (picker_packer role): `POST /api/v1/sales-orders/{id}/ship`
+
+Status flow: `created → allocated → shipped`. Allocation checks available inventory and reduces `available` by increasing `allocated`. Shipment consumes on-hand stock and clears allocation.
+
 To seed a sample supplier/product/purchase order for local testing:
 
 ```

@@ -1,4 +1,4 @@
-from . import auth, customers, products, suppliers, users, purchase_orders, inventory
+from . import auth, customers, products, suppliers, users, purchase_orders, inventory, sales_orders
 
 __all__ = [
     "auth",
@@ -8,4 +8,5 @@ __all__ = [
     "users",
     "purchase_orders",
     "inventory",
+    "sales_orders",
 ]
