@@ -1,13 +1,14 @@
 "use client";
 
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { MainLayout } from "@/components/layout/MainLayout";
 import { useAuth } from "@/hooks/useAuth";
 
 function HomeContent() {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center">
           <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">
@@ -34,7 +35,9 @@ function HomeContent() {
 export default function HomePage() {
   return (
     <ProtectedRoute>
-      <HomeContent />
+      <MainLayout>
+        <HomeContent />
+      </MainLayout>
     </ProtectedRoute>
   );
 }

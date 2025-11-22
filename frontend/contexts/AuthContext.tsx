@@ -37,15 +37,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      // Try to fetch current user to validate token
-      // For now, we'll decode basic info from token or fetch user
-      // Since backend doesn't have a /me endpoint, we'll need to store user in context after login
-      // For MVP, we can decode token or fetch user by ID if we store it
-      setIsLoading(false);
+      // Decode token to get user ID
+      const tokenPayload = JSON.parse(atob(token.split(".")[1]));
+      const userId = parseInt(tokenPayload.sub);
+      
+      // Fetch full user data to restore session
+      const userData = await getUser(userId);
+      setUser(userData);
     } catch (error) {
-      // Token is invalid, clear it
+      // Token is invalid or expired, clear it
       removeToken();
       setUser(null);
+    } finally {
       setIsLoading(false);
     }
   };
