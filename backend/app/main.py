@@ -1,5 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from sqlmodel import text
 
 from app.api.v1 import auth, users, customers, products, suppliers, purchase_orders, inventory, sales_orders
 from app.db.base import init_db
@@ -38,3 +40,21 @@ app.include_router(sales_orders.router, prefix="/api/v1/sales-orders", tags=["Sa
 @app.get("/")
 def root():
     return {"message": "Welcome to Mock Floral ERP Backend!"}
+
+
+@app.get("/health")
+def health_check():
+    """Health check endpoint for monitoring and deployment verification."""
+    try:
+        # Test database connection
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={"status": "healthy", "database": "connected"}
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content={"status": "unhealthy", "database": "disconnected", "error": str(e)}
+        )
