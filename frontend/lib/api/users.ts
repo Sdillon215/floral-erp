@@ -4,7 +4,12 @@ import { PaginationParams } from "@/types/api";
 
 // Get all users with pagination
 export const getUsers = async (params?: PaginationParams): Promise<User[]> => {
-  const response = await apiClient.get<User[]>("/api/v1/users/", { params });
+  const response = await apiClient.get<User[]>("/api/v1/users/", { 
+    params: {
+      skip: params?.skip || 0,
+      limit: params?.limit || 100,
+    }
+  });
   return response.data;
 };
 

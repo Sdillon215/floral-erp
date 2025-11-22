@@ -16,6 +16,7 @@ export interface UserCreate {
   email: string;
   password: string;
   role: UserRole;
+  is_admin?: boolean;
 }
 
 export interface UserUpdate {
