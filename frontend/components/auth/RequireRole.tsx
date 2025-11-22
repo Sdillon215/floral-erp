@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { UserRole } from "@/types/user";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 interface RequireRoleProps {
   children: React.ReactNode;
@@ -25,11 +26,11 @@ export function RequireRole({ children, allowedRoles }: RequireRoleProps) {
     }
   }, [user, isAdmin, allowedRoles, isLoading, router]);
 
-  // Show nothing while checking
+  // Show loading spinner while checking
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-gray-600">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
