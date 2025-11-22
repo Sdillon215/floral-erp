@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "@/lib/utils/toast";
 
 const loginSchema = z.object({
   username: z.string().email("Invalid email address"),
@@ -46,11 +47,13 @@ export default function LoginPage() {
 
     try {
       await login(data);
+      toast.success("Login successful!");
       router.push("/");
     } catch (err: any) {
-      setError(
-        err.response?.data?.detail || "Invalid email or password. Please try again."
-      );
+      const errorMessage =
+        err.response?.data?.detail || "Invalid email or password. Please try again.";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
