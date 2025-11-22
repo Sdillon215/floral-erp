@@ -12,15 +12,24 @@ from app.schemas.inventory import (
     InventoryAdjustmentCreate,
     InventoryAdjustmentOut,
     InventoryItemOut,
+    InventoryTransactionOut,
 )
 
 router = APIRouter()
 
 
 @router.get("/", response_model=List[InventoryItemOut], dependencies=[Depends(require_roles(UserRole.BUYER, UserRole.SALES))])
-def list_inventory(db: Session = Depends(get_session)):
-    items = db.exec(select(InventoryItem)).all()
+def list_inventory(skip: int = 0, limit: int = 100, db: Session = Depends(get_session)):
+    items = db.exec(select(InventoryItem).offset(skip).limit(limit)).all()
     return items
+
+
+@router.get("/{product_id}", response_model=InventoryItemOut, dependencies=[Depends(require_roles(UserRole.BUYER, UserRole.SALES))])
+def get_inventory_item(product_id: int, db: Session = Depends(get_session)):
+    item = db.get(InventoryItem, product_id)
+    if not item:
+        raise HTTPException(status_code=404, detail="Inventory item not found")
+    return item
 
 
 @router.post("/adjust", response_model=InventoryAdjustmentOut, dependencies=[Depends(get_current_admin)])
@@ -57,3 +66,26 @@ def adjust_inventory(adjustment: InventoryAdjustmentCreate, db: Session = Depend
     db.refresh(transaction)
 
     return InventoryAdjustmentOut(item=item, transaction=transaction)
+
+
+@router.get("/{product_id}/transactions", response_model=List[InventoryTransactionOut], dependencies=[Depends(require_roles(UserRole.BUYER, UserRole.SALES))])
+def get_inventory_transactions(
+    product_id: int,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_session),
+):
+    # Verify product exists
+    product = db.get(Product, product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    transactions = db.exec(
+        select(InventoryTransaction)
+        .where(InventoryTransaction.product_id == product_id)
+        .order_by(InventoryTransaction.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+    ).all()
+    
+    return transactions

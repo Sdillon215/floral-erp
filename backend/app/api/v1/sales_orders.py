@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlmodel import Session, select
 
 from app.core.dependencies import require_roles
@@ -95,8 +95,8 @@ def create_sales_order(
 
 
 @router.get("/", response_model=List[SalesOrderOut], dependencies=[Depends(require_roles(UserRole.SALES, UserRole.PICKER_PACKER))])
-def list_sales_orders(db: Session = Depends(get_session)):
-    return db.exec(select(SalesOrder)).all()
+def list_sales_orders(skip: int = 0, limit: int = 100, db: Session = Depends(get_session)):
+    return db.exec(select(SalesOrder).offset(skip).limit(limit)).all()
 
 
 @router.get("/{sales_order_id}", response_model=SalesOrderOut, dependencies=[Depends(require_roles(UserRole.SALES, UserRole.PICKER_PACKER))])
@@ -141,3 +141,56 @@ def ship_sales_order(sales_order_id: int, db: Session = Depends(get_session)):
     db.commit()
     db.refresh(sales_order)
     return sales_order
+
+
+@router.put("/{sales_order_id}", response_model=SalesOrderOut, dependencies=[Depends(require_roles(UserRole.SALES))])
+def update_sales_order(
+    sales_order_id: int,
+    sales_order_update: SalesOrderUpdate,
+    db: Session = Depends(get_session),
+):
+    sales_order = db.get(SalesOrder, sales_order_id)
+    if not sales_order:
+        raise HTTPException(status_code=404, detail="Sales order not found")
+    
+    # Only allow updating orders that are in "created" status
+    if sales_order.status != "created":
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot update sales order with status '{sales_order.status}'. Only 'created' orders can be updated."
+        )
+
+    update_data = sales_order_update.model_dump(exclude_unset=True)
+    
+    # Don't allow status changes through UPDATE - use dedicated endpoints
+    if "status" in update_data:
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot update status directly. Use /allocate or /ship endpoints to change status."
+        )
+
+    for field, value in update_data.items():
+        setattr(sales_order, field, value)
+
+    db.add(sales_order)
+    db.commit()
+    db.refresh(sales_order)
+    return sales_order
+
+
+@router.delete("/{sales_order_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(require_roles(UserRole.SALES))])
+def delete_sales_order(sales_order_id: int, db: Session = Depends(get_session)):
+    sales_order = db.get(SalesOrder, sales_order_id)
+    if not sales_order:
+        raise HTTPException(status_code=404, detail="Sales order not found")
+    
+    # Only allow deleting orders that are in "created" status
+    if sales_order.status != "created":
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot delete sales order with status '{sales_order.status}'. Only 'created' orders can be deleted."
+        )
+
+    db.delete(sales_order)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

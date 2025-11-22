@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlmodel import Session, select
 
 from app.core.dependencies import require_roles
@@ -80,8 +80,8 @@ def create_purchase_order(
 
 
 @router.get("/", response_model=List[PurchaseOrderOut])
-def list_purchase_orders(db: Session = Depends(get_session)):
-    purchase_orders = db.exec(select(PurchaseOrder)).all()
+def list_purchase_orders(skip: int = 0, limit: int = 100, db: Session = Depends(get_session)):
+    purchase_orders = db.exec(select(PurchaseOrder).offset(skip).limit(limit)).all()
     return purchase_orders
 
 
@@ -123,3 +123,22 @@ def update_purchase_order(
     db.commit()
     db.refresh(purchase_order)
     return purchase_order
+
+
+@router.delete("/{purchase_order_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_purchase_order(purchase_order_id: int, db: Session = Depends(get_session)):
+    purchase_order = db.get(PurchaseOrder, purchase_order_id)
+    if not purchase_order:
+        raise HTTPException(status_code=404, detail="Purchase order not found")
+    
+    # Only allow deleting orders that are in "created" status
+    # Cannot delete received orders as they have already affected inventory
+    if purchase_order.status != "created":
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot delete purchase order with status '{purchase_order.status}'. Only 'created' orders can be deleted."
+        )
+
+    db.delete(purchase_order)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
