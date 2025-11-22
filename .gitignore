@@ -102,6 +102,8 @@ storybook-static/
 
 # Project Documentation (local only, not committed)
 PROJECT_GOALS.md
+backend/MVP_NEXT_STEPS.md
+backend/CORE_MODULES_STATUS.md
 
 # Misc
 *.swp
