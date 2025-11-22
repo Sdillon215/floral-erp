@@ -80,7 +80,7 @@ export default function CreateProductPage() {
                   type="text"
                   id="sku"
                   {...register("sku")}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                   placeholder="e.g., ROSE-001"
                 />
                 {errors.sku && (
@@ -97,7 +97,7 @@ export default function CreateProductPage() {
                   type="text"
                   id="name"
                   {...register("name")}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                 />
                 {errors.name && (
                   <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
@@ -113,7 +113,7 @@ export default function CreateProductPage() {
                   id="description"
                   {...register("description")}
                   rows={3}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                   placeholder="Product description..."
                 />
                 {errors.description && (
@@ -132,7 +132,7 @@ export default function CreateProductPage() {
                   step="0.01"
                   min="0"
                   {...register("unit_price", { valueAsNumber: true })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                 />
                 {errors.unit_price && (
                   <p className="mt-1 text-sm text-red-600">{errors.unit_price.message}</p>
@@ -148,7 +148,7 @@ export default function CreateProductPage() {
                   type="text"
                   id="unit_of_measure"
                   {...register("unit_of_measure")}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                   placeholder="e.g., each, bunch, box"
                 />
                 {errors.unit_of_measure && (

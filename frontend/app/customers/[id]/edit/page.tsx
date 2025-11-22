@@ -139,7 +139,7 @@ export default function EditCustomerPage() {
                   type="text"
                   id="name"
                   {...register("name")}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                 />
                 {errors.name && (
                   <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
@@ -155,7 +155,7 @@ export default function EditCustomerPage() {
                   type="email"
                   id="email"
                   {...register("email")}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                 />
                 {errors.email && (
                   <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
@@ -171,7 +171,7 @@ export default function EditCustomerPage() {
                   type="tel"
                   id="phone"
                   {...register("phone")}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                   placeholder="e.g., +1 (555) 123-4567"
                 />
                 {errors.phone && (
@@ -188,7 +188,7 @@ export default function EditCustomerPage() {
                   id="billing_address"
                   {...register("billing_address")}
                   rows={3}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                   placeholder="Street address, City, State, ZIP"
                 />
                 {errors.billing_address && (
@@ -205,7 +205,7 @@ export default function EditCustomerPage() {
                   id="shipping_address"
                   {...register("shipping_address")}
                   rows={3}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                   placeholder="Street address, City, State, ZIP"
                 />
                 {errors.shipping_address && (
@@ -222,7 +222,7 @@ export default function EditCustomerPage() {
                   id="notes"
                   {...register("notes")}
                   rows={3}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                   placeholder="Additional notes about the customer..."
                 />
                 {errors.notes && (

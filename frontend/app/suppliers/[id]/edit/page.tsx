@@ -146,7 +146,7 @@ export default function EditSupplierPage() {
                   type="text"
                   id="name"
                   {...register("name")}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                 />
                 {errors.name && (
                   <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
@@ -162,7 +162,7 @@ export default function EditSupplierPage() {
                   type="text"
                   id="contact_name"
                   {...register("contact_name")}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                   placeholder="e.g., John Smith"
                 />
                 {errors.contact_name && (
@@ -179,7 +179,7 @@ export default function EditSupplierPage() {
                   type="email"
                   id="email"
                   {...register("email")}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                   placeholder="supplier@example.com"
                 />
                 {errors.email && (
@@ -196,7 +196,7 @@ export default function EditSupplierPage() {
                   type="tel"
                   id="phone"
                   {...register("phone")}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                   placeholder="e.g., +1 (555) 123-4567"
                 />
                 {errors.phone && (
@@ -213,7 +213,7 @@ export default function EditSupplierPage() {
                   type="url"
                   id="website"
                   {...register("website")}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                   placeholder="https://www.example.com"
                 />
                 {errors.website && (
@@ -230,7 +230,7 @@ export default function EditSupplierPage() {
                   id="notes"
                   {...register("notes")}
                   rows={3}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                   placeholder="Additional notes about the supplier..."
                 />
                 {errors.notes && (

@@ -140,7 +140,7 @@ export default function EditUserPage() {
                   type="email"
                   id="email"
                   {...register("email")}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                 />
                 {errors.email && (
                   <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
@@ -156,7 +156,7 @@ export default function EditUserPage() {
                   type="password"
                   id="password"
                   {...register("password")}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                   placeholder="Enter new password or leave blank"
                 />
                 {errors.password && (
@@ -172,7 +172,7 @@ export default function EditUserPage() {
                 <select
                   id="role"
                   {...register("role")}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                 >
                   <option value={UserRole.SALES}>Sales</option>
                   <option value={UserRole.BUYER}>Buyer</option>
