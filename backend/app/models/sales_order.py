@@ -13,7 +13,10 @@ class SalesOrder(SQLModel, table=True):
     created_by_user_id: Optional[int] = Field(default=None, foreign_key="user.id")
     created_by_customer_id: Optional[int] = Field(default=None, foreign_key="customer.id")
 
-    lines: list["SalesOrderLine"] = Relationship(back_populates="sales_order")
+    lines: list["SalesOrderLine"] = Relationship(
+        back_populates="sales_order",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
 
 
 class SalesOrderLine(SQLModel, table=True):

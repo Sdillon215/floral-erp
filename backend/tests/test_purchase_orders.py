@@ -104,3 +104,72 @@ def test_update_purchase_order_status(client):
     )
     assert update_response.status_code == 200
     assert update_response.json()["status"] == "received"
+
+
+def test_delete_purchase_order(client):
+    admin_headers = get_auth_headers(client, ADMIN_EMAIL, ADMIN_PASSWORD)
+    supplier_id = create_supplier(client, admin_headers)
+    product_id = create_product(client, admin_headers)
+    create_user_with_role(client, admin_headers, "buyer-delete@example.com", "buyer")
+    buyer_headers = get_auth_headers(client, "buyer-delete@example.com", "password123")
+
+    create_response = client.post(
+        "/api/v1/purchase-orders/",
+        json={
+            "supplier_id": supplier_id,
+            "lines": [
+                {"product_id": product_id, "quantity": 8},
+            ],
+        },
+        headers=buyer_headers,
+    )
+    purchase_order_id = create_response.json()["id"]
+
+    # Delete a created order
+    delete_response = client.delete(
+        f"/api/v1/purchase-orders/{purchase_order_id}",
+        headers=buyer_headers,
+    )
+    assert delete_response.status_code == 204
+
+    # Verify it's deleted
+    get_response = client.get(
+        f"/api/v1/purchase-orders/{purchase_order_id}",
+        headers=buyer_headers,
+    )
+    assert get_response.status_code == 404
+
+
+def test_delete_purchase_order_fails_for_received_order(client):
+    admin_headers = get_auth_headers(client, ADMIN_EMAIL, ADMIN_PASSWORD)
+    supplier_id = create_supplier(client, admin_headers)
+    product_id = create_product(client, admin_headers)
+    create_user_with_role(client, admin_headers, "buyer-delete2@example.com", "buyer")
+    buyer_headers = get_auth_headers(client, "buyer-delete2@example.com", "password123")
+
+    create_response = client.post(
+        "/api/v1/purchase-orders/",
+        json={
+            "supplier_id": supplier_id,
+            "lines": [
+                {"product_id": product_id, "quantity": 8},
+            ],
+        },
+        headers=buyer_headers,
+    )
+    purchase_order_id = create_response.json()["id"]
+
+    # Mark as received
+    client.put(
+        f"/api/v1/purchase-orders/{purchase_order_id}",
+        json={"status": "received"},
+        headers=buyer_headers,
+    )
+
+    # Try to delete received order (should fail)
+    delete_response = client.delete(
+        f"/api/v1/purchase-orders/{purchase_order_id}",
+        headers=buyer_headers,
+    )
+    assert delete_response.status_code == 400
+    assert "Only 'created' orders can be deleted" in delete_response.json()["detail"]

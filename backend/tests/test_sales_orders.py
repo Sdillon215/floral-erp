@@ -151,3 +151,145 @@ def test_allocate_fails_when_insufficient_inventory(client):
     )
     assert allocate_response.status_code == 400
     assert "Insufficient inventory" in allocate_response.json()["detail"]
+
+
+def test_update_sales_order(client):
+    admin_headers = get_auth_headers(client, ADMIN_EMAIL, ADMIN_PASSWORD)
+    create_user_with_role(client, admin_headers, "sales-update@example.com", "sales")
+    sales_headers = get_auth_headers(client, "sales-update@example.com", "password123")
+
+    customer_id = create_customer(client, admin_headers)
+    product_id = create_product(client, admin_headers)
+
+    create_response = client.post(
+        "/api/v1/sales-orders/",
+        json={
+            "customer_id": customer_id,
+            "lines": [
+                {"product_id": product_id, "quantity": 5, "unit_price": 4.50},
+            ],
+        },
+        headers=sales_headers,
+    )
+    assert create_response.status_code == 201
+    order_id = create_response.json()["id"]
+
+    # Update a created order
+    update_response = client.put(
+        f"/api/v1/sales-orders/{order_id}",
+        json={"shipped_date": None},
+        headers=sales_headers,
+    )
+    assert update_response.status_code == 200
+
+    # Try to update status directly (should fail)
+    status_update_response = client.put(
+        f"/api/v1/sales-orders/{order_id}",
+        json={"status": "allocated"},
+        headers=sales_headers,
+    )
+    assert status_update_response.status_code == 400
+    assert "Cannot update status directly" in status_update_response.json()["detail"]
+
+
+def test_update_sales_order_fails_for_allocated_order(client):
+    admin_headers = get_auth_headers(client, ADMIN_EMAIL, ADMIN_PASSWORD)
+    create_user_with_role(client, admin_headers, "sales-update2@example.com", "sales")
+    sales_headers = get_auth_headers(client, "sales-update2@example.com", "password123")
+
+    customer_id = create_customer(client, admin_headers)
+    product_id = create_product(client, admin_headers)
+    seed_inventory(client, admin_headers, product_id, 10)
+
+    create_response = client.post(
+        "/api/v1/sales-orders/",
+        json={
+            "customer_id": customer_id,
+            "lines": [
+                {"product_id": product_id, "quantity": 5, "unit_price": 4.50},
+            ],
+        },
+        headers=sales_headers,
+    )
+    order_id = create_response.json()["id"]
+
+    # Allocate the order
+    client.post(f"/api/v1/sales-orders/{order_id}/allocate", headers=sales_headers)
+
+    # Try to update allocated order (should fail)
+    update_response = client.put(
+        f"/api/v1/sales-orders/{order_id}",
+        json={"shipped_date": None},
+        headers=sales_headers,
+    )
+    assert update_response.status_code == 400
+    assert "Only 'created' orders can be updated" in update_response.json()["detail"]
+
+
+def test_delete_sales_order(client):
+    admin_headers = get_auth_headers(client, ADMIN_EMAIL, ADMIN_PASSWORD)
+    create_user_with_role(client, admin_headers, "sales-delete@example.com", "sales")
+    sales_headers = get_auth_headers(client, "sales-delete@example.com", "password123")
+
+    customer_id = create_customer(client, admin_headers)
+    product_id = create_product(client, admin_headers)
+
+    create_response = client.post(
+        "/api/v1/sales-orders/",
+        json={
+            "customer_id": customer_id,
+            "lines": [
+                {"product_id": product_id, "quantity": 5, "unit_price": 4.50},
+            ],
+        },
+        headers=sales_headers,
+    )
+    assert create_response.status_code == 201
+    order_id = create_response.json()["id"]
+
+    # Delete a created order
+    delete_response = client.delete(
+        f"/api/v1/sales-orders/{order_id}",
+        headers=sales_headers,
+    )
+    assert delete_response.status_code == 204
+
+    # Verify it's deleted
+    get_response = client.get(
+        f"/api/v1/sales-orders/{order_id}",
+        headers=sales_headers,
+    )
+    assert get_response.status_code == 404
+
+
+def test_delete_sales_order_fails_for_allocated_order(client):
+    admin_headers = get_auth_headers(client, ADMIN_EMAIL, ADMIN_PASSWORD)
+    create_user_with_role(client, admin_headers, "sales-delete2@example.com", "sales")
+    sales_headers = get_auth_headers(client, "sales-delete2@example.com", "password123")
+
+    customer_id = create_customer(client, admin_headers)
+    product_id = create_product(client, admin_headers)
+    seed_inventory(client, admin_headers, product_id, 10)
+
+    create_response = client.post(
+        "/api/v1/sales-orders/",
+        json={
+            "customer_id": customer_id,
+            "lines": [
+                {"product_id": product_id, "quantity": 5, "unit_price": 4.50},
+            ],
+        },
+        headers=sales_headers,
+    )
+    order_id = create_response.json()["id"]
+
+    # Allocate the order
+    client.post(f"/api/v1/sales-orders/{order_id}/allocate", headers=sales_headers)
+
+    # Try to delete allocated order (should fail)
+    delete_response = client.delete(
+        f"/api/v1/sales-orders/{order_id}",
+        headers=sales_headers,
+    )
+    assert delete_response.status_code == 400
+    assert "Only 'created' orders can be deleted" in delete_response.json()["detail"]

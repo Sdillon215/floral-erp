@@ -13,7 +13,10 @@ class PurchaseOrder(SQLModel, table=True):
     order_date: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     received_date: Optional[datetime] = None
 
-    lines: list["PurchaseOrderLine"] = Relationship(back_populates="purchase_order")
+    lines: list["PurchaseOrderLine"] = Relationship(
+        back_populates="purchase_order",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
 
 
 class PurchaseOrderLine(SQLModel, table=True):

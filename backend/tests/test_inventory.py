@@ -126,3 +126,124 @@ def test_manual_adjustment_requires_admin(client):
     assert admin_adjust.status_code == 200
     data = admin_adjust.json()
     assert data["item"]["on_hand"] == 5
+
+
+def test_get_inventory_item(client):
+    admin_headers = get_auth_headers(client, ADMIN_EMAIL, ADMIN_PASSWORD)
+    create_user_with_role(client, admin_headers, "buyer-get@example.com", "buyer")
+    buyer_headers = get_auth_headers(client, "buyer-get@example.com", "password123")
+    product_id = create_product(client, admin_headers)
+
+    # Adjust inventory to create an item
+    client.post(
+        "/api/v1/inventory/adjust",
+        json={"product_id": product_id, "quantity_delta": 15, "reference": "test"},
+        headers=admin_headers,
+    )
+
+    # Get single inventory item
+    response = client.get(
+        f"/api/v1/inventory/{product_id}",
+        headers=buyer_headers,
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["product_id"] == product_id
+    assert data["on_hand"] == 15
+    assert data["allocated"] == 0
+    assert data["available"] == 15
+
+
+def test_get_inventory_item_not_found(client):
+    admin_headers = get_auth_headers(client, ADMIN_EMAIL, ADMIN_PASSWORD)
+    create_user_with_role(client, admin_headers, "buyer-get2@example.com", "buyer")
+    buyer_headers = get_auth_headers(client, "buyer-get2@example.com", "password123")
+    product_id = create_product(client, admin_headers)
+
+    # Try to get inventory for product that has no inventory item
+    response = client.get(
+        f"/api/v1/inventory/{product_id}",
+        headers=buyer_headers,
+    )
+    assert response.status_code == 404
+    assert "not found" in response.json()["detail"].lower()
+
+
+def test_get_inventory_transactions(client):
+    admin_headers = get_auth_headers(client, ADMIN_EMAIL, ADMIN_PASSWORD)
+    create_user_with_role(client, admin_headers, "buyer-tx@example.com", "buyer")
+    buyer_headers = get_auth_headers(client, "buyer-tx@example.com", "password123")
+    product_id = create_product(client, admin_headers)
+
+    # Create some transactions
+    client.post(
+        "/api/v1/inventory/adjust",
+        json={"product_id": product_id, "quantity_delta": 10, "reference": "adjust-1"},
+        headers=admin_headers,
+    )
+    client.post(
+        "/api/v1/inventory/adjust",
+        json={"product_id": product_id, "quantity_delta": 5, "reference": "adjust-2"},
+        headers=admin_headers,
+    )
+
+    # Get transaction history
+    response = client.get(
+        f"/api/v1/inventory/{product_id}/transactions",
+        headers=buyer_headers,
+    )
+    assert response.status_code == 200
+    transactions = response.json()
+    assert len(transactions) == 2
+    # Should be ordered by most recent first
+    assert transactions[0]["reference"] == "adjust-2"
+    assert transactions[1]["reference"] == "adjust-1"
+    assert all(t["product_id"] == product_id for t in transactions)
+    assert all(t["type"] == "manual_adjustment" for t in transactions)
+
+
+def test_get_inventory_transactions_pagination(client):
+    admin_headers = get_auth_headers(client, ADMIN_EMAIL, ADMIN_PASSWORD)
+    create_user_with_role(client, admin_headers, "buyer-tx2@example.com", "buyer")
+    buyer_headers = get_auth_headers(client, "buyer-tx2@example.com", "password123")
+    product_id = create_product(client, admin_headers)
+
+    # Create multiple transactions
+    for i in range(5):
+        client.post(
+            "/api/v1/inventory/adjust",
+            json={"product_id": product_id, "quantity_delta": 1, "reference": f"adjust-{i}"},
+            headers=admin_headers,
+        )
+
+    # Get first page
+    response = client.get(
+        f"/api/v1/inventory/{product_id}/transactions?skip=0&limit=2",
+        headers=buyer_headers,
+    )
+    assert response.status_code == 200
+    transactions = response.json()
+    assert len(transactions) == 2
+
+    # Get second page
+    response = client.get(
+        f"/api/v1/inventory/{product_id}/transactions?skip=2&limit=2",
+        headers=buyer_headers,
+    )
+    assert response.status_code == 200
+    transactions = response.json()
+    assert len(transactions) == 2
+
+
+def test_get_inventory_transactions_product_not_found(client):
+    admin_headers = get_auth_headers(client, ADMIN_EMAIL, ADMIN_PASSWORD)
+    create_user_with_role(client, admin_headers, "buyer-tx3@example.com", "buyer")
+    buyer_headers = get_auth_headers(client, "buyer-tx3@example.com", "password123")
+
+    # Try to get transactions for non-existent product
+    response = client.get(
+        "/api/v1/inventory/99999/transactions",
+        headers=buyer_headers,
+    )
+    assert response.status_code == 404
+    assert "not found" in response.json()["detail"].lower()
