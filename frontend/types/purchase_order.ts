@@ -31,5 +31,6 @@ export interface PurchaseOrderCreate {
 export interface PurchaseOrderUpdate {
   status?: "created" | "received";
   received_date?: string | null; // ISO datetime string
+  lines?: PurchaseOrderLineCreate[];
 }
 

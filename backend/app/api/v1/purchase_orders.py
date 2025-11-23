@@ -105,12 +105,50 @@ def update_purchase_order(
     if not purchase_order:
         raise HTTPException(status_code=404, detail="Purchase order not found")
 
+    # Only allow updating line items if status is "created"
+    if purchase_order.status != "created" and purchase_order_update.lines is not None:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot update line items for purchase order with status '{purchase_order.status}'. Only 'created' orders can be modified.",
+        )
+
     previous_status = purchase_order.status
     update_data = purchase_order_update.model_dump(exclude_unset=True)
 
     if "status" in update_data and update_data["status"] not in {"created", "received"}:
         raise HTTPException(status_code=400, detail="Invalid status")
 
+    # Handle line items update
+    if "lines" in update_data:
+        # Delete existing lines
+        existing_lines = db.exec(
+            select(PurchaseOrderLine).where(PurchaseOrderLine.purchase_order_id == purchase_order_id)
+        ).all()
+        for line in existing_lines:
+            db.delete(line)
+        db.flush()
+
+        # Create new lines
+        new_lines: list[PurchaseOrderLine] = []
+        for line_in in update_data["lines"]:
+            product = db.get(Product, line_in["product_id"])
+            if not product:
+                raise HTTPException(
+                    status_code=400, detail=f"Product {line_in['product_id']} not found"
+                )
+            new_lines.append(
+                PurchaseOrderLine(
+                    purchase_order_id=purchase_order_id,
+                    product_id=line_in["product_id"],
+                    quantity=line_in["quantity"],
+                    unit_cost=line_in.get("unit_cost"),
+                )
+            )
+        purchase_order.lines = new_lines
+        # Remove lines from update_data so we don't try to setattr it
+        del update_data["lines"]
+
+    # Update other fields
     for field, value in update_data.items():
         setattr(purchase_order, field, value)
 

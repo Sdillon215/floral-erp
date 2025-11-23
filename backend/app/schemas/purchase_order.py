@@ -37,6 +37,7 @@ class PurchaseOrderCreate(PurchaseOrderBase):
 class PurchaseOrderUpdate(BaseModel):
     status: Optional[str] = None
     received_date: Optional[datetime] = None
+    lines: Optional[List[PurchaseOrderLineCreate]] = None
 
 
 class PurchaseOrderOut(PurchaseOrderBase):

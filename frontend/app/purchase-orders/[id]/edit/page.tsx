@@ -99,22 +99,15 @@ export default function EditPurchaseOrderPage() {
       setIsSubmitting(true);
       setError(null);
 
-      // Note: Backend doesn't support updating lines directly via PUT
-      // We'll need to delete and recreate, or the backend needs to support line updates
-      // For now, we'll just update the status if needed
-      // This is a limitation - we may need to enhance the backend API
-      toast.error("Line item updates not yet supported. Please delete and recreate the purchase order.");
-      return;
-
-      // await updatePurchaseOrder(purchaseOrderId, {
-      //   lines: data.lines.map((line) => ({
-      //     product_id: line.product_id,
-      //     quantity: line.quantity,
-      //     unit_cost: line.unit_cost || null,
-      //   })),
-      // });
-      // toast.success("Purchase order updated successfully");
-      // router.push(`/purchase-orders/${purchaseOrderId}`);
+      await updatePurchaseOrder(purchaseOrderId, {
+        lines: data.lines.map((line) => ({
+          product_id: line.product_id,
+          quantity: line.quantity,
+          unit_cost: line.unit_cost || null,
+        })),
+      });
+      toast.success("Purchase order updated successfully");
+      router.push(`/purchase-orders/${purchaseOrderId}`);
     } catch (err: any) {
       const errorMessage = err.response?.data?.detail || "Failed to update purchase order";
       setError(errorMessage);
@@ -173,13 +166,6 @@ export default function EditPurchaseOrderPage() {
           </h1>
 
           {error && <ErrorMessage message={error} className="mb-4" />}
-
-          <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-6">
-            <p className="text-sm text-yellow-800">
-              <strong>Note:</strong> Line item editing is not yet fully supported. To modify line
-              items, please delete this purchase order and create a new one.
-            </p>
-          </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="bg-white shadow rounded-lg p-6">
             <div className="space-y-6">
