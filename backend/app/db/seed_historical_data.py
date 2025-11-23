@@ -245,6 +245,178 @@ def create_weekly_data(
     session.commit()
 
 
+def create_current_sales_orders_and_low_stock(
+    session: Session,
+    products: List[Product],
+    customers: List[Customer],
+    user: User,
+) -> None:
+    """Create current sales orders (not yet shipped) and low stock items."""
+    print("\nCreating current sales orders and low stock items...")
+    
+    today = datetime.now(timezone.utc)
+    
+    # 1. Create some low stock items (available < 10)
+    # Select 3-5 random products to have low stock
+    low_stock_products = random.sample(products, min(random.randint(3, 5), len(products)))
+    
+    for product in low_stock_products:
+        item = session.get(InventoryItem, product.id)
+        if not item:
+            item = InventoryItem(product_id=product.id, on_hand=0, allocated=0)
+            session.add(item)
+            session.flush()
+        
+        # Set low stock: on_hand between 5-15, allocated between 0-5
+        # This makes available between 0-15 (some will be < 10)
+        on_hand = random.randint(5, 15)
+        allocated = random.randint(0, min(5, on_hand))
+        
+        # If we need to adjust existing inventory
+        if item.on_hand > 0:
+            # Reduce to low stock levels
+            adjustment = on_hand - item.on_hand
+            item.on_hand = on_hand
+            item.allocated = allocated
+            
+            # Create adjustment transaction
+            transaction = InventoryTransaction(
+                product_id=product.id,
+                quantity_delta=adjustment,
+                reference="Low stock seed",
+                type="manual_adjustment",
+                created_at=today - timedelta(days=random.randint(1, 7)),
+            )
+            session.add(transaction)
+        else:
+            # Set initial low stock
+            item.on_hand = on_hand
+            item.allocated = allocated
+            
+            # Create initial inventory transaction
+            transaction = InventoryTransaction(
+                product_id=product.id,
+                quantity_delta=on_hand,
+                reference="Initial low stock",
+                type="manual_adjustment",
+                created_at=today - timedelta(days=random.randint(1, 7)),
+            )
+            session.add(transaction)
+    
+    session.flush()
+    
+    # 2. Create current sales orders (not yet shipped)
+    # Create 2-3 "created" status orders (not yet allocated)
+    num_created_orders = random.randint(2, 3)
+    for i in range(num_created_orders):
+        customer = random.choice(customers)
+        order_date = today - timedelta(days=random.randint(1, 5))
+        
+        # Select 1-2 products for this order
+        so_products = random.sample(products, min(random.randint(1, 2), len(products)))
+        
+        so_lines = []
+        for product in so_products:
+            # Order quantity that might exceed available (to show allocation issues)
+            quantity = random.randint(10, 30)
+            unit_price = product.unit_price
+            so_lines.append({
+                "product_id": product.id,
+                "quantity": quantity,
+                "unit_price": unit_price,
+            })
+        
+        # Create Sales Order with "created" status
+        sales_order = SalesOrder(
+            customer_id=customer.id,
+            status="created",
+            order_date=order_date,
+            shipped_date=None,
+            created_by_user_id=user.id,
+        )
+        session.add(sales_order)
+        session.flush()
+        
+        # Create SO lines
+        for line_data in so_lines:
+            so_line = SalesOrderLine(
+                sales_order_id=sales_order.id,
+                **line_data
+            )
+            session.add(so_line)
+        
+        print(f"  Created sales order #{sales_order.id} (status: created)")
+    
+    # Create 2-3 "allocated" status orders (ready to be picked)
+    num_allocated_orders = random.randint(2, 3)
+    for i in range(num_allocated_orders):
+        customer = random.choice(customers)
+        order_date = today - timedelta(days=random.randint(1, 3))
+        
+        # Select 1-2 products for this order
+        so_products = random.sample(products, min(random.randint(1, 2), len(products)))
+        
+        so_lines = []
+        for product in so_products:
+            # Order quantity that fits available inventory
+            item = session.get(InventoryItem, product.id)
+            available = (item.on_hand - item.allocated) if item else 0
+            quantity = random.randint(5, min(20, max(1, available // 2))) if available > 0 else random.randint(5, 15)
+            unit_price = product.unit_price
+            so_lines.append({
+                "product_id": product.id,
+                "quantity": quantity,
+                "unit_price": unit_price,
+            })
+        
+        # Create Sales Order with "allocated" status
+        sales_order = SalesOrder(
+            customer_id=customer.id,
+            status="allocated",
+            order_date=order_date,
+            shipped_date=None,
+            created_by_user_id=user.id,
+        )
+        session.add(sales_order)
+        session.flush()
+        
+        # Create SO lines
+        for line_data in so_lines:
+            so_line = SalesOrderLine(
+                sales_order_id=sales_order.id,
+                **line_data
+            )
+            session.add(so_line)
+        
+        # Apply allocation (increase allocated)
+        for line_data in so_lines:
+            item = session.get(InventoryItem, line_data["product_id"])
+            if not item:
+                item = InventoryItem(product_id=line_data["product_id"], on_hand=0, allocated=0)
+                session.add(item)
+                session.flush()
+            
+            # Ensure we have enough on_hand
+            if item.on_hand < line_data["quantity"]:
+                item.on_hand = line_data["quantity"] + random.randint(0, 10)
+            
+            item.allocated += line_data["quantity"]
+            
+            transaction = InventoryTransaction(
+                product_id=line_data["product_id"],
+                quantity_delta=-line_data["quantity"],
+                reference=f"SO:{sales_order.id}",
+                type="sales_allocation",
+                created_at=order_date,
+            )
+            session.add(transaction)
+        
+        print(f"  Created sales order #{sales_order.id} (status: allocated)")
+    
+    session.commit()
+    print("✓ Current sales orders and low stock items created")
+
+
 def seed_historical_data(num_weeks: int = 52) -> None:
     """Seed historical data for specified number of weeks.
     
@@ -302,10 +474,33 @@ def seed_historical_data(num_weeks: int = 52) -> None:
         inv_count = len(session.exec(select(InventoryItem)).all())
         trans_count = len(session.exec(select(InventoryTransaction)).all())
         
+        # Create current sales orders and low stock items
+        create_current_sales_orders_and_low_stock(session, products, customers, user)
+        
+        # Count created records
+        po_count = len(session.exec(select(PurchaseOrder)).all())
+        so_count = len(session.exec(select(SalesOrder)).all())
+        inv_count = len(session.exec(select(InventoryItem)).all())
+        trans_count = len(session.exec(select(InventoryTransaction)).all())
+        
+        # Count current/pending orders
+        created_so_count = len(session.exec(select(SalesOrder).where(SalesOrder.status == "created")).all())
+        allocated_so_count = len(session.exec(select(SalesOrder).where(SalesOrder.status == "allocated")).all())
+        
+        # Count low stock items (available < 10)
+        low_stock_count = 0
+        all_items = session.exec(select(InventoryItem)).all()
+        for item in all_items:
+            if (item.on_hand - item.allocated) < 10:
+                low_stock_count += 1
+        
         print(f"\n✓ Successfully created {num_weeks} weeks of historical data!")
         print(f"  - Purchase Orders: {po_count}")
         print(f"  - Sales Orders: {so_count}")
+        print(f"    * Created (pending): {created_so_count}")
+        print(f"    * Allocated (ready to ship): {allocated_so_count}")
         print(f"  - Inventory Items: {inv_count}")
+        print(f"    * Low stock items (< 10 available): {low_stock_count}")
         print(f"  - Transactions: {trans_count}")
 
 

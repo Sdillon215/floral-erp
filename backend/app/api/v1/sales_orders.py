@@ -96,7 +96,12 @@ def create_sales_order(
 
 @router.get("/", response_model=List[SalesOrderOut], dependencies=[Depends(require_roles(UserRole.SALES, UserRole.PICKER_PACKER))])
 def list_sales_orders(skip: int = 0, limit: int = 100, db: Session = Depends(get_session)):
-    return db.exec(select(SalesOrder).offset(skip).limit(limit)).all()
+    return db.exec(
+        select(SalesOrder)
+        .order_by(SalesOrder.order_date.desc(), SalesOrder.id.desc())
+        .offset(skip)
+        .limit(limit)
+    ).all()
 
 
 @router.get("/{sales_order_id}", response_model=SalesOrderOut, dependencies=[Depends(require_roles(UserRole.SALES, UserRole.PICKER_PACKER))])

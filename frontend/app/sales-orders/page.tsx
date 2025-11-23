@@ -38,7 +38,16 @@ export default function SalesOrdersPage() {
       setIsLoading(true);
       setError(null);
       const data = await getSalesOrders({ skip: 0, limit: 100 });
-      setSalesOrders(data);
+      // Sort by order_date descending (newest first), then by id descending as fallback
+      const sorted = [...data].sort((a, b) => {
+        const dateA = a.order_date ? new Date(a.order_date).getTime() : 0;
+        const dateB = b.order_date ? new Date(b.order_date).getTime() : 0;
+        if (dateB !== dateA) {
+          return dateB - dateA; // Descending order (newest first)
+        }
+        return b.id - a.id; // Fallback to ID descending
+      });
+      setSalesOrders(sorted);
     } catch (err: any) {
       setError(err.response?.data?.detail || "Failed to fetch sales orders");
       toast.error("Failed to load sales orders");
@@ -73,7 +82,7 @@ export default function SalesOrdersPage() {
       case "created":
         return "bg-yellow-100 text-yellow-800";
       case "allocated":
-        return "bg-green-100 text-green-800";
+        return "bg-blue-100 text-blue-800";
       case "shipped":
         return "bg-green-100 text-green-800";
       default:

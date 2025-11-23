@@ -83,7 +83,7 @@ export default function SalesDashboard() {
       case "created":
         return "bg-yellow-100 text-yellow-800";
       case "allocated":
-        return "bg-green-100 text-green-800";
+        return "bg-blue-100 text-blue-800";
       case "shipped":
         return "bg-green-100 text-green-800";
       default:
