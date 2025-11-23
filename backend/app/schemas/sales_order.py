@@ -36,6 +36,7 @@ class SalesOrderCreate(SalesOrderBase):
 class SalesOrderUpdate(BaseModel):
     status: Optional[str] = None
     shipped_date: Optional[datetime] = None
+    lines: Optional[List[SalesOrderLineCreate]] = None
 
 
 class SalesOrderOut(SalesOrderBase):

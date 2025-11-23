@@ -169,6 +169,26 @@ def update_sales_order(
             detail="Cannot update status directly. Use /allocate or /ship endpoints to change status."
         )
 
+    # Handle line items update
+    if "lines" in update_data and update_data["lines"] is not None:
+        # Delete existing lines
+        existing_lines = db.exec(
+            select(SalesOrderLine).where(SalesOrderLine.sales_order_id == sales_order.id)
+        ).all()
+        for line in existing_lines:
+            db.delete(line)
+        db.flush()  # Ensure old lines are deleted before adding new ones
+
+        # Add new lines
+        new_lines = []
+        for line_in in update_data["lines"]:
+            product = db.get(Product, line_in["product_id"])
+            if not product:
+                raise HTTPException(status_code=400, detail=f"Product {line_in['product_id']} not found")
+            new_lines.append(SalesOrderLine(**line_in))
+        sales_order.lines = new_lines
+        del update_data["lines"]  # Remove lines from update_data to prevent direct setattr
+
     for field, value in update_data.items():
         setattr(sales_order, field, value)
 
