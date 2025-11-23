@@ -161,6 +161,12 @@ export default function ProductsPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <Link
+                            href={`/products/${product.id}`}
+                            className="text-blue-600 hover:text-blue-900 mr-4"
+                          >
+                            View
+                          </Link>
+                          <Link
                             href={`/products/${product.id}/edit`}
                             className="text-blue-600 hover:text-blue-900 mr-4"
                           >
