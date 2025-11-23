@@ -12,6 +12,7 @@ import { getProduct } from "@/lib/api/products";
 import { InventoryItem, InventoryTransaction } from "@/types/inventory";
 import { Product } from "@/types/product";
 import { UserRole } from "@/types/user";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-hot-toast";
 import { format } from "date-fns";
 
@@ -19,6 +20,7 @@ const LOW_STOCK_THRESHOLD = 10;
 
 export default function InventoryItemDetailsPage() {
   const params = useParams();
+  const { isAdmin } = useAuth();
   const productId = parseInt(params.product_id as string);
   const [inventoryItem, setInventoryItem] = useState<InventoryItem | null>(null);
   const [product, setProduct] = useState<Product | null>(null);
@@ -142,12 +144,22 @@ export default function InventoryItemDetailsPage() {
                 <p className="text-sm text-gray-500 mt-1">SKU: {product.sku}</p>
               )}
             </div>
-            <Link
-              href="/inventory"
-              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-            >
-              Back to Inventory
-            </Link>
+            <div className="flex space-x-3">
+              {isAdmin && (
+                <Link
+                  href="/inventory/adjust"
+                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                >
+                  Adjust Inventory
+                </Link>
+              )}
+              <Link
+                href="/inventory"
+                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Back to Inventory
+              </Link>
+            </div>
           </div>
 
           {/* Inventory Summary */}

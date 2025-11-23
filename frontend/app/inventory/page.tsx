@@ -11,11 +11,13 @@ import { getProducts } from "@/lib/api/products";
 import { InventoryItem } from "@/types/inventory";
 import { Product } from "@/types/product";
 import { UserRole } from "@/types/user";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-hot-toast";
 
 const LOW_STOCK_THRESHOLD = 10; // Highlight items with available quantity below this
 
 export default function InventoryPage() {
+  const { isAdmin } = useAuth();
   const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
   const [products, setProducts] = useState<Record<number, Product>>({});
   const [isLoading, setIsLoading] = useState(true);
@@ -85,6 +87,14 @@ export default function InventoryPage() {
                 Track on-hand, allocated, and available quantities
               </p>
             </div>
+            {isAdmin && (
+              <Link
+                href="/inventory/adjust"
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                Adjust Inventory
+              </Link>
+            )}
           </div>
 
           {isLoading ? (
@@ -192,7 +202,7 @@ export default function InventoryPage() {
           {inventoryItems.some(isLowStock) && (
             <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-md p-4">
               <div className="flex">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <svg
                     className="h-5 w-5 text-yellow-400"
                     viewBox="0 0 20 20"
