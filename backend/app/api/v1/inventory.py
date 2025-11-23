@@ -18,13 +18,13 @@ from app.schemas.inventory import (
 router = APIRouter()
 
 
-@router.get("/", response_model=List[InventoryItemOut], dependencies=[Depends(require_roles(UserRole.BUYER, UserRole.SALES))])
+@router.get("/", response_model=List[InventoryItemOut], dependencies=[Depends(require_roles(UserRole.BUYER, UserRole.SALES, UserRole.PICKER_PACKER))])
 def list_inventory(skip: int = 0, limit: int = 100, db: Session = Depends(get_session)):
     items = db.exec(select(InventoryItem).offset(skip).limit(limit)).all()
     return items
 
 
-@router.get("/{product_id}", response_model=InventoryItemOut, dependencies=[Depends(require_roles(UserRole.BUYER, UserRole.SALES))])
+@router.get("/{product_id}", response_model=InventoryItemOut, dependencies=[Depends(require_roles(UserRole.BUYER, UserRole.SALES, UserRole.PICKER_PACKER))])
 def get_inventory_item(product_id: int, db: Session = Depends(get_session)):
     item = db.get(InventoryItem, product_id)
     if not item:
@@ -68,7 +68,7 @@ def adjust_inventory(adjustment: InventoryAdjustmentCreate, db: Session = Depend
     return InventoryAdjustmentOut(item=item, transaction=transaction)
 
 
-@router.get("/{product_id}/transactions", response_model=List[InventoryTransactionOut], dependencies=[Depends(require_roles(UserRole.BUYER, UserRole.SALES))])
+@router.get("/{product_id}/transactions", response_model=List[InventoryTransactionOut], dependencies=[Depends(require_roles(UserRole.BUYER, UserRole.SALES, UserRole.PICKER_PACKER))])
 def get_inventory_transactions(
     product_id: int,
     skip: int = 0,

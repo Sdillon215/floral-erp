@@ -10,10 +10,10 @@ from app.models.user import UserRole
 from app.schemas.customer import CustomerCreate, CustomerOut, CustomerUpdate
 
 
-router = APIRouter(dependencies=[Depends(require_roles(UserRole.SALES))])
+router = APIRouter()
 
 
-@router.post("/", response_model=CustomerOut, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=CustomerOut, status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_roles(UserRole.SALES))])
 def create_customer(customer_in: CustomerCreate, db: Session = Depends(get_session)):
     existing_customer = db.exec(select(Customer).where(Customer.email == customer_in.email)).first()
     if existing_customer:
@@ -25,13 +25,13 @@ def create_customer(customer_in: CustomerCreate, db: Session = Depends(get_sessi
     return customer
 
 
-@router.get("/", response_model=List[CustomerOut])
+@router.get("/", response_model=List[CustomerOut], dependencies=[Depends(require_roles(UserRole.SALES, UserRole.PICKER_PACKER))])
 def list_customers(skip: int = 0, limit: int = 100, db: Session = Depends(get_session)):
     customers = db.exec(select(Customer).offset(skip).limit(limit)).all()
     return customers
 
 
-@router.get("/{customer_id}", response_model=CustomerOut)
+@router.get("/{customer_id}", response_model=CustomerOut, dependencies=[Depends(require_roles(UserRole.SALES, UserRole.PICKER_PACKER))])
 def get_customer(customer_id: int, db: Session = Depends(get_session)):
     customer = db.get(Customer, customer_id)
     if not customer:
@@ -39,7 +39,7 @@ def get_customer(customer_id: int, db: Session = Depends(get_session)):
     return customer
 
 
-@router.put("/{customer_id}", response_model=CustomerOut)
+@router.put("/{customer_id}", response_model=CustomerOut, dependencies=[Depends(require_roles(UserRole.SALES))])
 def update_customer(customer_id: int, customer_update: CustomerUpdate, db: Session = Depends(get_session)):
     customer = db.get(Customer, customer_id)
     if not customer:
@@ -55,7 +55,7 @@ def update_customer(customer_id: int, customer_update: CustomerUpdate, db: Sessi
     return customer
 
 
-@router.delete("/{customer_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{customer_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(require_roles(UserRole.SALES))])
 def delete_customer(customer_id: int, db: Session = Depends(get_session)):
     customer = db.get(Customer, customer_id)
     if not customer:

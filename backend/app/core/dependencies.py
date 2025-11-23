@@ -58,8 +58,17 @@ def require_roles(*allowed_roles: UserRole) -> Callable[..., User]:
     def dependency(current_user: User = Depends(get_current_user)) -> User:
         if current_user.is_admin:
             return current_user
-        if current_user.role in allowed_roles:
+        
+        # Handle both enum and string role values from database
+        user_role = current_user.role
+        if isinstance(user_role, str):
+            user_role = UserRole(user_role)
+        
+        # Check if user's role matches any allowed role
+        allowed_role_values = {role.value for role in allowed_roles}
+        if user_role.value in allowed_role_values:
             return current_user
+        
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Insufficient permissions",

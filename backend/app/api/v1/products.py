@@ -10,10 +10,10 @@ from app.models.user import UserRole
 from app.schemas.product import ProductCreate, ProductOut, ProductUpdate
 
 
-router = APIRouter(dependencies=[Depends(require_roles(UserRole.SALES, UserRole.BUYER))])
+router = APIRouter()
 
 
-@router.post("/", response_model=ProductOut, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=ProductOut, status_code=status.HTTP_201_CREATED, dependencies=[Depends(require_roles(UserRole.SALES, UserRole.BUYER))])
 def create_product(product_in: ProductCreate, db: Session = Depends(get_session)):
     existing_product = db.exec(select(Product).where(Product.sku == product_in.sku)).first()
     if existing_product:
@@ -25,13 +25,13 @@ def create_product(product_in: ProductCreate, db: Session = Depends(get_session)
     return product
 
 
-@router.get("/", response_model=List[ProductOut])
+@router.get("/", response_model=List[ProductOut], dependencies=[Depends(require_roles(UserRole.SALES, UserRole.BUYER, UserRole.PICKER_PACKER))])
 def list_products(skip: int = 0, limit: int = 100, db: Session = Depends(get_session)):
     products = db.exec(select(Product).offset(skip).limit(limit)).all()
     return products
 
 
-@router.get("/{product_id}", response_model=ProductOut)
+@router.get("/{product_id}", response_model=ProductOut, dependencies=[Depends(require_roles(UserRole.SALES, UserRole.BUYER, UserRole.PICKER_PACKER))])
 def get_product(product_id: int, db: Session = Depends(get_session)):
     product = db.get(Product, product_id)
     if not product:
@@ -39,7 +39,7 @@ def get_product(product_id: int, db: Session = Depends(get_session)):
     return product
 
 
-@router.put("/{product_id}", response_model=ProductOut)
+@router.put("/{product_id}", response_model=ProductOut, dependencies=[Depends(require_roles(UserRole.SALES, UserRole.BUYER))])
 def update_product(product_id: int, product_update: ProductUpdate, db: Session = Depends(get_session)):
     product = db.get(Product, product_id)
     if not product:
@@ -63,7 +63,7 @@ def update_product(product_id: int, product_update: ProductUpdate, db: Session =
     return product
 
 
-@router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(require_roles(UserRole.SALES, UserRole.BUYER))])
 def delete_product(product_id: int, db: Session = Depends(get_session)):
     product = db.get(Product, product_id)
     if not product:

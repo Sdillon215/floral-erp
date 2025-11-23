@@ -3,17 +3,17 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlmodel import Session, select
 
-from app.core.dependencies import get_current_admin
+from app.core.dependencies import get_current_admin, get_current_user
 from app.core.security import hash_password
 from app.db.session import get_session
 from app.models.user import User
 from app.schemas.user import UserCreate, UserOut, UserUpdate
 
 
-router = APIRouter(dependencies=[Depends(get_current_admin)])
+router = APIRouter()
 
 
-@router.post("/", response_model=UserOut)
+@router.post("/", response_model=UserOut, dependencies=[Depends(get_current_admin)])
 def create_user(user: UserCreate, db: Session = Depends(get_session)):
     existing_user = db.exec(select(User).where(User.email == user.email)).first()
     if existing_user:
@@ -30,21 +30,33 @@ def create_user(user: UserCreate, db: Session = Depends(get_session)):
     return new_user
 
 
-@router.get("/", response_model=List[UserOut])
+@router.get("/", response_model=List[UserOut], dependencies=[Depends(get_current_admin)])
 def list_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_session)):
     users = db.exec(select(User).offset(skip).limit(limit)).all()
     return users
 
 
 @router.get("/{user_id}", response_model=UserOut)
-def get_user(user_id: int, db: Session = Depends(get_session)):
+def get_user(
+    user_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_session),
+):
     user = db.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    
+    # Users can only view their own data unless they're admin
+    if not current_user.is_admin and current_user.id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient permissions",
+        )
+    
     return user
 
 
-@router.put("/{user_id}", response_model=UserOut)
+@router.put("/{user_id}", response_model=UserOut, dependencies=[Depends(get_current_admin)])
 def update_user(
     user_id: int,
     user_update: UserUpdate,
@@ -71,7 +83,7 @@ def update_user(
     return user
 
 
-@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_current_admin)])
 def delete_user(user_id: int, db: Session = Depends(get_session)):
     user = db.get(User, user_id)
     if not user:
