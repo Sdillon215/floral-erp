@@ -103,7 +103,7 @@ export default function PurchaseOrdersPage() {
             <h1 className="text-2xl font-bold text-gray-900">Purchase Orders</h1>
             <Link
               href="/purchase-orders/new"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 bg-[#5A9367] text-white rounded-md hover:bg-[#4a7a56] focus:outline-none focus:ring-2 focus:ring-[#5A9367]"
             >
               Create New Purchase Order
             </Link>
@@ -186,7 +186,7 @@ export default function PurchaseOrdersPage() {
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <Link
                             href={`/purchase-orders/${po.id}`}
-                            className="text-blue-600 hover:text-blue-900 mr-4"
+                            className="text-[#5A9367] hover:text-[#4a7a56] mr-4"
                           >
                             View
                           </Link>
@@ -194,7 +194,7 @@ export default function PurchaseOrdersPage() {
                             <>
                               <Link
                                 href={`/purchase-orders/${po.id}/edit`}
-                                className="text-blue-600 hover:text-blue-900 mr-4"
+                                className="text-[#5A9367] hover:text-[#4a7a56] mr-4"
                               >
                                 Edit
                               </Link>

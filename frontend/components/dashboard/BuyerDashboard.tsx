@@ -105,7 +105,7 @@ export default function BuyerDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Link
                 href="/purchase-orders/new"
-                className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-6 shadow-sm transition-colors"
+                className="bg-[#5A9367] hover:bg-[#4a7a56] text-white rounded-lg p-6 shadow-sm transition-colors"
               >
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
@@ -125,7 +125,7 @@ export default function BuyerDashboard() {
                   </div>
                   <div className="ml-4">
                     <h3 className="text-lg font-semibold">Create PO</h3>
-                    <p className="text-sm text-blue-100">New Purchase Order</p>
+                    <p className="text-sm text-green-100">New Purchase Order</p>
                   </div>
                 </div>
               </Link>
@@ -220,7 +220,7 @@ export default function BuyerDashboard() {
                 <h2 className="text-lg font-medium text-gray-900">Recent Purchase Orders</h2>
                 <Link
                   href="/purchase-orders"
-                  className="text-sm text-blue-600 hover:text-blue-800"
+                  className="text-sm text-[#5A9367] hover:text-[#4a7a56]"
                 >
                   View All
                 </Link>
@@ -231,7 +231,7 @@ export default function BuyerDashboard() {
                     <p>No purchase orders yet</p>
                     <Link
                       href="/purchase-orders/new"
-                      className="mt-2 text-sm text-blue-600 hover:text-blue-800"
+                      className="mt-2 text-sm text-[#5A9367] hover:text-[#4a7a56]"
                     >
                       Create your first PO
                     </Link>
@@ -359,7 +359,7 @@ export default function BuyerDashboard() {
                   <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
                     <Link
                       href="/inventory"
-                      className="text-sm text-blue-600 hover:text-blue-800"
+                      className="text-sm text-[#5A9367] hover:text-[#4a7a56]"
                     >
                       View all inventory →
                     </Link>

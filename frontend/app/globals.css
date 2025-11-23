@@ -10,6 +10,18 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  
+  /* Custom green theme color */
+  --color-primary-50: #f0f7f2;
+  --color-primary-100: #d9ede0;
+  --color-primary-200: #b8ddc4;
+  --color-primary-300: #8cc5a0;
+  --color-primary-400: #5A9367;
+  --color-primary-500: #5A9367;
+  --color-primary-600: #4a7a56;
+  --color-primary-700: #3d6247;
+  --color-primary-800: #33503b;
+  --color-primary-900: #2a4231;
 }
 
 @media (prefers-color-scheme: dark) {

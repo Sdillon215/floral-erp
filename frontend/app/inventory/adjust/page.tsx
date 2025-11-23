@@ -192,7 +192,7 @@ export default function AdjustInventoryPage() {
                   <select
                     id="product_id"
                     {...register("product_id", { valueAsNumber: true })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-[#5A9367] focus:ring-[#5A9367] sm:text-sm"
                   >
                     <option value={0}>Select a product</option>
                     {products.map((product) => (
@@ -223,7 +223,7 @@ export default function AdjustInventoryPage() {
                       </div>
                       <div>
                         <label className="text-xs font-medium text-gray-500">Allocated</label>
-                        <p className="mt-1 text-lg font-semibold text-blue-600">
+                        <p className="mt-1 text-lg font-semibold text-[#5A9367]">
                           {selectedInventory.allocated}
                         </p>
                       </div>
@@ -255,7 +255,7 @@ export default function AdjustInventoryPage() {
                   id="quantity_delta"
                   step="1"
                   {...register("quantity_delta", { valueAsNumber: true })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-[#5A9367] focus:ring-[#5A9367] sm:text-sm"
                   placeholder="0"
                 />
                 {errors.quantity_delta && (
@@ -270,20 +270,20 @@ export default function AdjustInventoryPage() {
 
               {/* Preview of New On-Hand */}
               {selectedProductId && selectedProductId > 0 && quantityDelta !== 0 && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h3 className="text-sm font-medium text-blue-900 mb-2">Preview</h3>
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <h3 className="text-sm font-medium text-[#4a7a56] mb-2">Preview</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs font-medium text-blue-700">Current On Hand</label>
-                      <p className="mt-1 text-lg font-semibold text-blue-900">
+                      <label className="text-xs font-medium text-[#4a7a56]">Current On Hand</label>
+                      <p className="mt-1 text-lg font-semibold text-[#4a7a56]">
                         {selectedInventory?.on_hand || 0}
                       </p>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-blue-700">New On Hand</label>
+                      <label className="text-xs font-medium text-[#4a7a56]">New On Hand</label>
                       <p
                         className={`mt-1 text-lg font-semibold ${
-                          isNegativeInventory() ? "text-red-600" : "text-blue-900"
+                          isNegativeInventory() ? "text-red-600" : "text-[#4a7a56]"
                         }`}
                       >
                         {calculateNewOnHand()}
@@ -308,7 +308,7 @@ export default function AdjustInventoryPage() {
                   id="reference"
                   maxLength={100}
                   {...register("reference")}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-gray-900 placeholder:text-gray-400 focus:border-[#5A9367] focus:ring-[#5A9367] sm:text-sm"
                   placeholder="e.g., Physical count correction"
                 />
                 {errors.reference && (
@@ -321,14 +321,14 @@ export default function AdjustInventoryPage() {
               <button
                 type="button"
                 onClick={() => router.push("/inventory")}
-                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#5A9367]"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting || isNegativeInventory()}
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#5A9367] hover:bg-[#4a7a56] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#5A9367] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <span className="flex items-center">

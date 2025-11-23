@@ -188,7 +188,7 @@ export default function PickerPackerDashboard() {
                       setSelectedOrderId(order.id);
                     }}
                     className={`w-full px-6 py-4 text-left hover:bg-gray-50 transition-colors ${
-                      selectedOrder?.id === order.id ? "bg-blue-50 border-l-4 border-blue-600" : ""
+                      selectedOrder?.id === order.id ? "bg-green-50 border-l-4 border-[#5A9367]" : ""
                     }`}
                   >
                     <div className="flex justify-between items-start">
@@ -202,7 +202,7 @@ export default function PickerPackerDashboard() {
                           ${calculateTotal(order).toFixed(2)}
                         </p>
                       </div>
-                      <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                      <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
                         Allocated
                       </span>
                     </div>
@@ -236,7 +236,7 @@ export default function PickerPackerDashboard() {
                         Order Date: {formatDate(selectedOrder.order_date)}
                       </p>
                     </div>
-                    <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                    <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
                       Ready to Pick
                     </span>
                   </div>
@@ -262,7 +262,7 @@ export default function PickerPackerDashboard() {
                               type="checkbox"
                               checked={isPicked}
                               onChange={() => handleItemToggle(line.id)}
-                              className="mt-1 h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                              className="mt-1 h-5 w-5 text-[#5A9367] focus:ring-[#5A9367] border-gray-300 rounded"
                             />
                             <div className="ml-3 flex-1">
                               <div className="flex justify-between items-start">
@@ -317,7 +317,7 @@ export default function PickerPackerDashboard() {
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                      className="bg-[#5A9367] h-2 rounded-full transition-all duration-300"
                       style={{
                         width: `${
                           (selectedOrder.lines.filter((line) => pickedItems[line.id]).length /

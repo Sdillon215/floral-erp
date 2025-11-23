@@ -148,7 +148,7 @@ export default function InventoryItemDetailsPage() {
               {isAdmin && (
                 <Link
                   href="/inventory/adjust"
-                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#5A9367] hover:bg-[#4a7a56]"
                 >
                   Adjust Inventory
                 </Link>
@@ -175,7 +175,7 @@ export default function InventoryItemDetailsPage() {
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-500">Allocated</label>
-                <p className="mt-1 text-2xl font-semibold text-blue-600">
+                <p className="mt-1 text-2xl font-semibold text-[#5A9367]">
                   {inventoryItem.allocated}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">Reserved for orders</p>
@@ -238,7 +238,7 @@ export default function InventoryItemDetailsPage() {
               <div className="mt-4">
                 <Link
                   href={`/products/${product.id}`}
-                  className="text-sm text-blue-600 hover:text-blue-900"
+                  className="text-sm text-[#5A9367] hover:text-[#4a7a56]"
                 >
                   View Product Details →
                 </Link>

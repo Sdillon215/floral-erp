@@ -179,7 +179,7 @@ export default function ProductDetailsPage() {
                 <h2 className="text-lg font-medium text-gray-900">Inventory</h2>
                 <Link
                   href={`/inventory/${product.id}`}
-                  className="text-sm text-blue-600 hover:text-blue-900"
+                  className="text-sm text-[#5A9367] hover:text-[#4a7a56]"
                 >
                   View Full Inventory Details →
                 </Link>
@@ -193,7 +193,7 @@ export default function ProductDetailsPage() {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Allocated</label>
-                  <p className="mt-1 text-2xl font-semibold text-blue-600">
+                  <p className="mt-1 text-2xl font-semibold text-[#5A9367]">
                     {inventoryItem.allocated}
                   </p>
                 </div>

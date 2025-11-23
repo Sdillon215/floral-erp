@@ -83,7 +83,7 @@ export default function ProductsPage() {
             <h1 className="text-2xl font-bold text-gray-900">Products</h1>
             <Link
               href="/products/new"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 bg-[#5A9367] text-white rounded-md hover:bg-[#4a7a56] focus:outline-none focus:ring-2 focus:ring-[#5A9367]"
             >
               Create New Product
             </Link>
@@ -162,13 +162,13 @@ export default function ProductsPage() {
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <Link
                             href={`/products/${product.id}`}
-                            className="text-blue-600 hover:text-blue-900 mr-4"
+                            className="text-[#5A9367] hover:text-[#4a7a56] mr-4"
                           >
                             View
                           </Link>
                           <Link
                             href={`/products/${product.id}/edit`}
-                            className="text-blue-600 hover:text-blue-900 mr-4"
+                            className="text-[#5A9367] hover:text-[#4a7a56] mr-4"
                           >
                             Edit
                           </Link>

@@ -26,7 +26,7 @@ export function ConfirmDialog({
   const confirmButtonClass =
     variant === "danger"
       ? "bg-red-600 hover:bg-red-700 focus:ring-red-500"
-      : "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500";
+      : "bg-[#5A9367] hover:bg-[#4a7a56] focus:ring-[#5A9367]";
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
